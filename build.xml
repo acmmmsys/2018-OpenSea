@@ -1,0 +1,99 @@
+
+<project name="globalfeatures" default="compile" basedir=".">
+  <!-- configure your build here -->
+  <property name="lire" location="/Users/zeno/work/lire"/>
+  <property name="opencv" location="/usr/local/opencv-2.4.10/share/OpenCV/java"/>
+
+  <!-- ########## DO NOT MAKE CHANGES BELOW THIS LINE ########### -->
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+  <path id="class.path">
+    <fileset dir="${lire}" includes="**/*.jar"/>
+  </path>
+
+  <target name="compile_indexer" depends="init" description="compile the indexer">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="indexer/src" destdir="${build}" classpathref="class.path"/>
+  </target>
+
+  <target name="compile_classifier" depends="init" description="compile the classifier">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="classifier/src" destdir="${build}" classpathref="class.path"/>
+  </target>
+
+  <target name="compile" depends="compile_classifier, compile_indexer" description="compile all"/>
+
+  <target name="clean" description="clean up">
+    <delete dir="${build}"/>
+  </target>
+
+  <target name="files-exist">
+    <available file="${lire}/lire.jar"  property="foundLire"/>
+    <pathconvert property="foundLuceneCore" setonempty="false" pathsep=" ">
+      <path>
+        <fileset dir="${lire}/lib/" includes="lucene-core-*.jar" />
+      </path>
+    </pathconvert>
+    <pathconvert property="foundLuceneAnalyzers" setonempty="false" pathsep=" ">
+      <path>
+        <fileset dir="${lire}/lib/" includes="lucene-analyzers-*.jar" />
+      </path>
+    </pathconvert>
+    <pathconvert property="foundOpenCV" setonempty="false" pathsep=" ">
+      <path>
+        <fileset dir="${opencv}" includes="opencv-*.jar" />
+      </path>
+    </pathconvert>
+  </target>
+
+  <target name="file-checks" depends="files-exist">
+     <fail message="make sure you have a lire.jar in ${lire}.">
+        <condition><not><isset property="foundLire"/></not></condition>
+     </fail>
+     <fail message="make sure you have a lucene-core-*.jar in ${lire}/lib.">
+        <condition><not><isset property="foundLuceneCore"/></not></condition>
+     </fail>
+     <fail message="make sure you have a lucene-analyzers-*.jar in ${lire}/lib.">
+        <condition><not><isset property="foundLuceneAnalyzers"/></not></condition>
+     </fail>
+     <fail message="make sure you have a opencv-*.jar in ${opencv}.">
+        <condition><not><isset property="foundOpenCV"/></not></condition>
+     </fail>
+  </target>
+
+  <target name="deploy_classifier" depends="compile_classifier, file-checks">
+    <jar destfile="${dist}/classifier.jar" basedir="${build}" filesetmanifest="skip">
+      <zipgroupfileset dir="${lire}" includes="lire.jar"/>
+      <zipgroupfileset dir="${lire}/lib" includes="lucene-core-*.jar"/>
+      <zipgroupfileset dir="${lire}/lib" includes="lucene-analyzers-*.jar"/>
+      <zipgroupfileset dir="${opencv}" includes="opencv-*.jar"/>
+
+      <manifest>
+        <attribute name="Main-Class" value="no.simula.classifier.Main"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="deploy_indexer" depends="compile_indexer">
+    <jar destfile="${dist}/indexer.jar" basedir="${build}" filesetmanifest="skip">
+      <zipgroupfileset dir="${lire}" includes="lire.jar"/>
+      <zipgroupfileset dir="${lire}/lib" includes="lucene-core-*.jar"/>
+      <zipgroupfileset dir="${lire}/lib" includes="lucene-analyzers-*.jar"/>
+
+      <manifest>
+        <attribute name="Main-Class" value="no.simula.indexer.Main"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="deploy" depends="deploy_classifier, deploy_indexer"/>
+  <target name="dist" depends="deploy_classifier, deploy_indexer"/>
+
+</project>
