@@ -7,7 +7,7 @@ This video https://www.youtube.com/watch?v=gb2BqMuZ2h0 is a demonstration of how
 
 ### Installation ###
 
-We have tested our software on Linux, Mac OS X and Windows. For simplicity we only provide installation in- structions for Ubuntu Linux. The following installation and build instructions were tested with Ubuntu 14.04:
+We have tested our software on Linux, Mac OS X and Windows. For simplicity we only provide installation in- structions for Ubuntu Linux. The following installation and build instructions were tested with Ubuntu 14.04 and 16.04:
 
 * Download Lire from http://www.lire-project.net/.
 * Unzip Lire to a directory of your choice. We will refer to this location as Lire directory.
